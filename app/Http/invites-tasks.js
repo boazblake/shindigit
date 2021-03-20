@@ -62,7 +62,6 @@ export const getInvitesByGuestIdTask = (http) => (mdl) => (guestId) =>
   http.backEnd
     .getTask(mdl)(`classes/Invites?where={"guestId":"${guestId}"}`)
     .map(prop("results"))
-    .map(log("wtf"))
     .map(map(toInviteViewModel))
 
 export const getInvitesTaskByEventId = (http) => (mdl) => (eventId) =>

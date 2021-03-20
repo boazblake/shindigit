@@ -3331,8 +3331,7 @@ var Profile = function Profile() {
       state.status = "failed";
     };
 
-    var onSuccess = function onSuccess(profile) {
-      mdl.User.profile = profile;
+    var onSuccess = function onSuccess() {
       state.error = null;
       state.status = "success";
       (0, _http.setUserToken)(mdl)(mdl.User);
@@ -3550,7 +3549,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 var addCommentTask = function addCommentTask(http) {
   return function (mdl) {
     return function (comment) {
-      return http.backEnd.postTask(mdl)("data/Comments")(comment).chain(function (_ref) {
+      return http.backEnd.postTask(mdl)("classes/Comments")(comment).chain(function (_ref) {
         var objectId = _ref.objectId;
         var commentId = objectId;
         return _data.default.of(function (user) {
@@ -3560,7 +3559,7 @@ var addCommentTask = function addCommentTask(http) {
               event: event
             };
           };
-        }).ap(http.backEnd.postTask(mdl)("data/Users/".concat(mdl.User.objectId, "/comments%3AComments%3An"))([commentId])).ap(http.backEnd.postTask(mdl)("data/Events/".concat(mdl.Events.currentEventId(), "/comments%3AComments%3An"))([commentId]));
+        }).ap(http.backEnd.postTask(mdl)("classes/Users/".concat(mdl.User.objectId, "/comments%3AComments%3An"))([commentId])).ap(http.backEnd.postTask(mdl)("classes/Events/".concat(mdl.Events.currentEventId(), "/comments%3AComments%3An"))([commentId]));
       });
     };
   };
@@ -3571,7 +3570,7 @@ exports.addCommentTask = addCommentTask;
 var getCommentsByEventIdTask = function getCommentsByEventIdTask(http) {
   return function (mdl) {
     return function (eventId) {
-      return http.backEnd.getTask(mdl)("data/Comments?pageSize=100&where=eventId%3D'".concat(eventId, "'&sortBy=created%20asc"));
+      return http.backEnd.getTask(mdl)("classes/Comments?pageSize=100&where=eventId%3D'".concat(eventId, "'&sortBy=created%20asc"));
     };
   };
 };
@@ -3581,7 +3580,7 @@ exports.getCommentsByEventIdTask = getCommentsByEventIdTask;
 var getCommentsByguestIdTask = function getCommentsByguestIdTask(http) {
   return function (mdl) {
     return function (guestId) {
-      return http.backEnd.getTask(mdl)("data/Comments?pageSize=100&where=guestId%3D'".concat(guestId, "'&sortBy=created%20asc"));
+      return http.backEnd.getTask(mdl)("classes/Comments?pageSize=100&where=guestId%3D'".concat(guestId, "'&sortBy=created%20asc"));
     };
   };
 };
@@ -3591,7 +3590,7 @@ exports.getCommentsByguestIdTask = getCommentsByguestIdTask;
 var deleteBulkCommentsTask = function deleteBulkCommentsTask(http) {
   return function (mdl) {
     return function (guestId) {
-      return http.backEnd.deleteTask(mdl)("data/Comments?where=guestId%3D'".concat(guestId, "'"));
+      return http.backEnd.deleteTask(mdl)("classes/Comments?where=guestId%3D'".concat(guestId, "'"));
     };
   };
 };
@@ -3601,7 +3600,7 @@ exports.deleteBulkCommentsTask = deleteBulkCommentsTask;
 var deleteCommentTask = function deleteCommentTask(http) {
   return function (mdl) {
     return function (id) {
-      return http.backEnd.deleteTask(mdl)("data/Comments/".concat(id));
+      return http.backEnd.deleteTask(mdl)("classes/Comments/".concat(id));
     };
   };
 };
@@ -3611,7 +3610,7 @@ exports.deleteCommentTask = deleteCommentTask;
 var updateCommentTask = function updateCommentTask(http) {
   return function (mdl) {
     return function (comment) {
-      return http.backEnd.putTask(mdl)("data/Comments/".concat(comment.objectId))(comment);
+      return http.backEnd.putTask(mdl)("classes/Comments/".concat(comment.objectId))(comment);
     };
   };
 };
@@ -3720,7 +3719,7 @@ var getEventGuestsByEventIdTask = function getEventGuestsByEventIdTask(http) {
 var getEventByIdTask = function getEventByIdTask(http) {
   return function (mdl) {
     return function (eventId) {
-      return http.backEnd.getTask(mdl)("data/Events/".concat(eventId)).map(toEventviewModel(mdl));
+      return http.backEnd.getTask(mdl)("classes/Events/".concat(eventId)).map(toEventviewModel(mdl));
     };
   };
 };
@@ -3761,12 +3760,12 @@ exports.loadEventTask = loadEventTask;
 var deleteEventTask = function deleteEventTask(http) {
   return function (mdl) {
     return function (id) {
-      return http.backEnd.deleteTask(mdl)("data/Events/".concat(id)).chain(function () {
-        return http.backEnd.deleteTask(mdl)("data/bulk/Invites?where=eventId%3D'".concat(id, "'"));
+      return http.backEnd.deleteTask(mdl)("classes/Events/".concat(id)).chain(function () {
+        return http.backEnd.deleteTask(mdl)("classes/bulk/Invites?where=eventId%3D'".concat(id, "'"));
       }).chain(function () {
-        return http.backEnd.deleteTask(mdl)("data/bulk/Items?where=eventId%3D'".concat(id, "'"));
+        return http.backEnd.deleteTask(mdl)("classes/bulk/Items?where=eventId%3D'".concat(id, "'"));
       }).chain(function () {
-        return http.backEnd.deleteTask(mdl)("data/bulk/Comments?where=eventId%3D'".concat(id, "'"));
+        return http.backEnd.deleteTask(mdl)("classes/bulk/Comments?where=eventId%3D'".concat(id, "'"));
       });
     };
   };
@@ -3787,7 +3786,7 @@ var createEventTask = function createEventTask(http) {
           latlong = _ref4.latlong;
       var end = M(mdl.selectedDate()).hour((0, _utils.getHour)(endTime)).minute((0, _utils.getMin)(endTime));
       var start = M(mdl.selectedDate()).hour((0, _utils.getHour)(startTime)).minute((0, _utils.getMin)(startTime));
-      return http.backEnd.postTask(mdl)("data/Events")({
+      return http.backEnd.postTask(mdl)("classes/Events")({
         end: end,
         start: start,
         notes: notes,
@@ -3827,7 +3826,7 @@ var createEventTask = function createEventTask(http) {
                 event: event
               };
             };
-          }).ap(http.backEnd.postTask(mdl)("data/Users/".concat(mdl.User.objectId, "/invites"))([inviteId])).ap(relateInvitesToEventTask(http)(mdl)(eventId)([inviteId]));
+          }).ap(http.backEnd.postTask(mdl)("classes/Users/".concat(mdl.User.objectId, "/invites"))([inviteId])).ap(relateInvitesToEventTask(http)(mdl)(eventId)([inviteId]));
         });
       });
     };
@@ -3865,7 +3864,7 @@ var relateItemsToEventTask = function relateItemsToEventTask(http) {
   return function (mdl) {
     return function (eventId) {
       return function (itemIds) {
-        return http.backEnd.putTask(mdl)("data/Events/".concat(eventId, "/items"))(itemIds);
+        return http.backEnd.putTask(mdl)("classes/Events/".concat(eventId, "/items"))(itemIds);
       };
     };
   };
@@ -3877,7 +3876,7 @@ var relateCommentsToEventTask = function relateCommentsToEventTask(http) {
   return function (mdl) {
     return function (eventId) {
       return function (commentIds) {
-        return http.backEnd.putTask(mdl)("data/Events/".concat(eventId, "/comments"))(commentIds);
+        return http.backEnd.putTask(mdl)("classes/Events/".concat(eventId, "/comments"))(commentIds);
       };
     };
   };
@@ -3889,7 +3888,7 @@ var relateInvitesToEventTask = function relateInvitesToEventTask(http) {
   return function (mdl) {
     return function (eventId) {
       return function (inviteIds) {
-        return http.backEnd.putTask(mdl)("data/Events/".concat(eventId, "/invites"))(inviteIds);
+        return http.backEnd.putTask(mdl)("classes/Events/".concat(eventId, "/invites"))(inviteIds);
       };
     };
   };
@@ -3901,7 +3900,7 @@ var updateEventHostTask = function updateEventHostTask(http) {
   return function (mdl) {
     return function (eventId) {
       return function (hostId) {
-        return http.backEnd.putTask(mdl)("data/Events/".concat(eventId))({
+        return http.backEnd.putTask(mdl)("classes/Events/".concat(eventId))({
           hostId: hostId
         });
       };
@@ -3934,7 +3933,7 @@ var updateEventTask = function updateEventTask(http) {
           notes: notes,
           title: title
         };
-        return http.backEnd.putTask(mdl)("data/Events/".concat(eventId))(updatedEvent).chain(function (_ref9) {
+        return http.backEnd.putTask(mdl)("classes/Events/".concat(eventId))(updatedEvent).chain(function (_ref9) {
           var end = _ref9.end,
               start = _ref9.start,
               title = _ref9.title,
@@ -4290,7 +4289,7 @@ exports.updateInviteTask = updateInviteTask;
 var getInvitesByGuestIdTask = function getInvitesByGuestIdTask(http) {
   return function (mdl) {
     return function (guestId) {
-      return http.backEnd.getTask(mdl)("classes/Invites?where={\"guestId\":\"".concat(guestId, "\"}")).map((0, _ramda.prop)("results")).map((0, _utils.log)("wtf")).map((0, _ramda.map)(toInviteViewModel));
+      return http.backEnd.getTask(mdl)("classes/Invites?where={\"guestId\":\"".concat(guestId, "\"}")).map((0, _ramda.prop)("results")).map((0, _ramda.map)(toInviteViewModel));
     };
   };
 };
@@ -4402,7 +4401,7 @@ exports.updateItemTask = exports.deleteItemTask = exports.deleteBulkItemsTask = 
 var addItemTask = function addItemTask(http) {
   return function (mdl) {
     return function (item) {
-      return http.backEnd.postTask(mdl)("data/Items")(item);
+      return http.backEnd.postTask(mdl)("classes/Items")(item);
     };
   };
 };
@@ -4412,7 +4411,7 @@ exports.addItemTask = addItemTask;
 var getItemsByEventIdTask = function getItemsByEventIdTask(http) {
   return function (mdl) {
     return function (eventId) {
-      return http.backEnd.getTask(mdl)("data/Items?pageSize=100&where=eventId%3D'".concat(eventId, "'&sortBy=name%20asc"));
+      return http.backEnd.getTask(mdl)("classes/Items?pageSize=100&where=eventId%3D'".concat(eventId, "'&sortBy=name%20asc"));
     };
   };
 };
@@ -4422,7 +4421,7 @@ exports.getItemsByEventIdTask = getItemsByEventIdTask;
 var getItemsByGuestIdTask = function getItemsByGuestIdTask(http) {
   return function (mdl) {
     return function (guestId) {
-      return http.backEnd.getTask(mdl)("data/Items?pageSize=100&where=guestId%3D'".concat(guestId, "'&sortBy=name%20asc"));
+      return http.backEnd.getTask(mdl)("classes/Items?pageSize=100&where=guestId%3D'".concat(guestId, "'&sortBy=name%20asc"));
     };
   };
 };
@@ -4432,7 +4431,7 @@ exports.getItemsByGuestIdTask = getItemsByGuestIdTask;
 var deleteBulkItemsTask = function deleteBulkItemsTask(http) {
   return function (mdl) {
     return function (guestId) {
-      return http.backEnd.deleteTask(mdl)("data/Items?where=guestId%3D'".concat(guestId, "'"));
+      return http.backEnd.deleteTask(mdl)("classes/Items?where=guestId%3D'".concat(guestId, "'"));
     };
   };
 };
@@ -4442,7 +4441,7 @@ exports.deleteBulkItemsTask = deleteBulkItemsTask;
 var deleteItemTask = function deleteItemTask(http) {
   return function (mdl) {
     return function (itemId) {
-      return http.backEnd.deleteTask(mdl)("data/Items/".concat(itemId));
+      return http.backEnd.deleteTask(mdl)("classes/Items/".concat(itemId));
     };
   };
 };
@@ -4452,7 +4451,7 @@ exports.deleteItemTask = deleteItemTask;
 var updateItemTask = function updateItemTask(http) {
   return function (mdl) {
     return function (item) {
-      return http.backEnd.putTask(mdl)("data/Items/".concat(item.objectId))(item);
+      return http.backEnd.putTask(mdl)("classes/Items/".concat(item.objectId))(item);
     };
   };
 };
@@ -4534,11 +4533,15 @@ exports.relateProfileToUserTask = exports.relateInvitesToUserTask = exports.unRe
 
 var _ramda = require("ramda");
 
+var _utils = require("utils");
+
 function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); if (enumerableOnly) symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; }); keys.push.apply(keys, symbols); } return keys; }
 
 function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; if (i % 2) { ownKeys(Object(source), true).forEach(function (key) { _defineProperty(target, key, source[key]); }); } else if (Object.getOwnPropertyDescriptors) { Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)); } else { ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } } return target; }
 
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
+var removedbCols = (0, _ramda.compose)((0, _ramda.dissoc)("updatedAt"), (0, _ramda.dissoc)("createdAt"), (0, _utils.log)("?"));
 
 var setUserToken = function setUserToken(mdl) {
   return function (user) {
@@ -4650,7 +4653,7 @@ exports.getProfileTask = getProfileTask;
 var updateUserProfile = function updateUserProfile(http) {
   return function (mdl) {
     return function (profile) {
-      return http.backEnd.putTask(mdl)("data/Profiles/".concat(mdl.User.profile.objectId))(profile);
+      return http.backEnd.putTask(mdl)("classes/Profiles/".concat(mdl.User.profile.objectId))(removedbCols(profile));
     };
   };
 };
@@ -4660,7 +4663,7 @@ exports.updateUserProfile = updateUserProfile;
 var findUserByEmailTask = function findUserByEmailTask(http) {
   return function (mdl) {
     return function (email) {
-      return http.backEnd.getTask(mdl)("data/Users?where=email%3D'".concat(email, "'"));
+      return http.backEnd.getTask(mdl)("classes/Users?where=email%3D'".concat(email, "'"));
     };
   };
 };
@@ -4671,7 +4674,7 @@ var relateItemsToUserTask = function relateItemsToUserTask(http) {
   return function (mdl) {
     return function (userId) {
       return function (itemIds) {
-        return http.backEnd.putTask(mdl)("data/Users/".concat(userId, "/items"))(itemIds);
+        return http.backEnd.putTask(mdl)("classes/Users/".concat(userId, "/items"))(itemIds);
       };
     };
   };
@@ -4683,7 +4686,7 @@ var unRelateItemToUserTask = function unRelateItemToUserTask(http) {
   return function (mdl) {
     return function (userId) {
       return function (itemId) {
-        return http.backEnd.deleteTask(mdl)("data/Users/".concat(userId, "/items?whereClause=objectId%3D'").concat(itemId, "'"));
+        return http.backEnd.deleteTask(mdl)("classes/Users/".concat(userId, "/items?whereClause=objectId%3D'").concat(itemId, "'"));
       };
     };
   };
@@ -4695,13 +4698,13 @@ var relateInvitesToUserTask = function relateInvitesToUserTask(http) {
   return function (mdl) {
     return function (userId) {
       return function (inviteIds) {
-        return http.backEnd.putTask(mdl)("data/Users/".concat(userId, "/invites"))(inviteIds);
+        return http.backEnd.putTask(mdl)("classes/Users/".concat(userId, "/invites"))(inviteIds);
       };
     };
   };
 }; // export const unRelateInvitesToUserTask = (http) => (mdl) => (userId) => (
 //   inviteIds
-// ) => http.backEnd.deleteTask(mdl)(`data/Users/${userId}/invites`)(inviteIds)
+// ) => http.backEnd.deleteTask(mdl)(`classes/Users/${userId}/invites`)(inviteIds)
 
 
 exports.relateInvitesToUserTask = relateInvitesToUserTask;
@@ -4710,13 +4713,13 @@ var relateProfileToUserTask = function relateProfileToUserTask(http) {
   return function (mdl) {
     return function (userId) {
       return function (profileId) {
-        return http.backEnd.putTask(mdl)("data/Users/".concat(userId, "/profile"))([profileId]);
+        return http.backEnd.putTask(mdl)("classes/Users/".concat(userId, "/profile"))([profileId]);
       };
     };
   };
 }; // export const unRelateProfileToUserTask = (http) => (mdl) => (userId) => (
 //   profileId
-// ) => http.backEnd.deleteTask(mdl)(`data/Users/${userId}/profile`)([profileId])
+// ) => http.backEnd.deleteTask(mdl)(`classes/Users/${userId}/profile`)([profileId])
 
 
 exports.relateProfileToUserTask = relateProfileToUserTask;

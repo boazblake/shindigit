@@ -76,7 +76,9 @@ const getEventGuestsByEventIdTask = (http) => (mdl) => (eventId) =>
   )
 
 export const getEventByIdTask = (http) => (mdl) => (eventId) =>
-  http.backEnd.getTask(mdl)(`data/Events/${eventId}`).map(toEventviewModel(mdl))
+  http.backEnd
+    .getTask(mdl)(`classes/Events/${eventId}`)
+    .map(toEventviewModel(mdl))
 
 const addHostDataToEvent = (event) => (guests) => {
   let host = guests.filter(propEq("guestId", event.hostId))[0]
@@ -101,15 +103,19 @@ export const loadEventTask = (http) => (mdl) => (eventId) =>
 
 export const deleteEventTask = (http) => (mdl) => (id) =>
   http.backEnd
-    .deleteTask(mdl)(`data/Events/${id}`)
+    .deleteTask(mdl)(`classes/Events/${id}`)
     .chain(() =>
-      http.backEnd.deleteTask(mdl)(`data/bulk/Invites?where=eventId%3D'${id}'`)
+      http.backEnd.deleteTask(mdl)(
+        `classes/bulk/Invites?where=eventId%3D'${id}'`
+      )
     )
     .chain(() =>
-      http.backEnd.deleteTask(mdl)(`data/bulk/Items?where=eventId%3D'${id}'`)
+      http.backEnd.deleteTask(mdl)(`classes/bulk/Items?where=eventId%3D'${id}'`)
     )
     .chain(() =>
-      http.backEnd.deleteTask(mdl)(`data/bulk/Comments?where=eventId%3D'${id}'`)
+      http.backEnd.deleteTask(mdl)(
+        `classes/bulk/Comments?where=eventId%3D'${id}'`
+      )
     )
 
 export const createEventTask = (http) => (mdl) => ({
@@ -128,7 +134,7 @@ export const createEventTask = (http) => (mdl) => ({
     .minute(getMin(startTime))
 
   return http.backEnd
-    .postTask(mdl)("data/Events")({
+    .postTask(mdl)("classes/Events")({
       end,
       start,
       notes,
@@ -162,7 +168,7 @@ export const createEventTask = (http) => (mdl) => ({
         }))
           .ap(
             http.backEnd.postTask(mdl)(
-              `data/Users/${mdl.User.objectId}/invites`
+              `classes/Users/${mdl.User.objectId}/invites`
             )([inviteId])
           )
           .ap(relateInvitesToEventTask(http)(mdl)(eventId)([inviteId]))
@@ -182,18 +188,18 @@ export const updateItemToGuestTask = (http) => (mdl) => (item) =>
 
 export const relateItemsToEventTask = (http) => (mdl) => (eventId) => (
   itemIds
-) => http.backEnd.putTask(mdl)(`data/Events/${eventId}/items`)(itemIds)
+) => http.backEnd.putTask(mdl)(`classes/Events/${eventId}/items`)(itemIds)
 
 export const relateCommentsToEventTask = (http) => (mdl) => (eventId) => (
   commentIds
-) => http.backEnd.putTask(mdl)(`data/Events/${eventId}/comments`)(commentIds)
+) => http.backEnd.putTask(mdl)(`classes/Events/${eventId}/comments`)(commentIds)
 
 export const relateInvitesToEventTask = (http) => (mdl) => (eventId) => (
   inviteIds
-) => http.backEnd.putTask(mdl)(`data/Events/${eventId}/invites`)(inviteIds)
+) => http.backEnd.putTask(mdl)(`classes/Events/${eventId}/invites`)(inviteIds)
 
 export const updateEventHostTask = (http) => (mdl) => (eventId) => (hostId) =>
-  http.backEnd.putTask(mdl)(`data/Events/${eventId}`)({ hostId })
+  http.backEnd.putTask(mdl)(`classes/Events/${eventId}`)({ hostId })
 
 export const updateEventTask = (http) => (mdl) => (eventId) => ({
   shortDate,
@@ -218,7 +224,7 @@ export const updateEventTask = (http) => (mdl) => (eventId) => ({
   }
 
   return http.backEnd
-    .putTask(mdl)(`data/Events/${eventId}`)(updatedEvent)
+    .putTask(mdl)(`classes/Events/${eventId}`)(updatedEvent)
     .chain(({ end, start, title, allDay, inPerson, location, latlong }) => {
       return updateBulkInvites(http)(mdl)(
         `eventId='${mdl.Events.currentEventId()}'`
@@ -233,3 +239,6 @@ export const updateEventTask = (http) => (mdl) => (eventId) => ({
       })
     })
 }
+
+
+//https://dashboard.back4app.com/apidocs/1blVmKMuIVf6T7jvjiFGAXta1iL8kdwehGKg83LM#Events-custom-class

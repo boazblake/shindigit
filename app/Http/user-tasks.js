@@ -1,4 +1,7 @@
-import { map, path } from "ramda"
+import { dissoc, compose, path } from "ramda"
+import { log } from "utils"
+
+const removedbCols = compose(dissoc("updatedAt"), dissoc("createdAt"), log("?"))
 
 export const setUserToken = (mdl) => (user) => {
   sessionStorage.setItem("shindigit-user", JSON.stringify(user))
@@ -69,33 +72,33 @@ export const getProfileTask = (http) => (mdl) => (user) => {
 }
 
 export const updateUserProfile = (http) => (mdl) => (profile) =>
-  http.backEnd.putTask(mdl)(`data/Profiles/${mdl.User.profile.objectId}`)(
-    profile
+  http.backEnd.putTask(mdl)(`classes/Profiles/${mdl.User.profile.objectId}`)(
+    removedbCols(profile)
   )
 
 export const findUserByEmailTask = (http) => (mdl) => (email) =>
-  http.backEnd.getTask(mdl)(`data/Users?where=email%3D'${email}'`)
+  http.backEnd.getTask(mdl)(`classes/Users?where=email%3D'${email}'`)
 
 export const relateItemsToUserTask = (http) => (mdl) => (userId) => (itemIds) =>
-  http.backEnd.putTask(mdl)(`data/Users/${userId}/items`)(itemIds)
+  http.backEnd.putTask(mdl)(`classes/Users/${userId}/items`)(itemIds)
 
 export const unRelateItemToUserTask = (http) => (mdl) => (userId) => (itemId) =>
   http.backEnd.deleteTask(mdl)(
-    `data/Users/${userId}/items?whereClause=objectId%3D'${itemId}'`
+    `classes/Users/${userId}/items?whereClause=objectId%3D'${itemId}'`
   )
 
 export const relateInvitesToUserTask = (http) => (mdl) => (userId) => (
   inviteIds
-) => http.backEnd.putTask(mdl)(`data/Users/${userId}/invites`)(inviteIds)
+) => http.backEnd.putTask(mdl)(`classes/Users/${userId}/invites`)(inviteIds)
 
 // export const unRelateInvitesToUserTask = (http) => (mdl) => (userId) => (
 //   inviteIds
-// ) => http.backEnd.deleteTask(mdl)(`data/Users/${userId}/invites`)(inviteIds)
+// ) => http.backEnd.deleteTask(mdl)(`classes/Users/${userId}/invites`)(inviteIds)
 
 export const relateProfileToUserTask = (http) => (mdl) => (userId) => (
   profileId
-) => http.backEnd.putTask(mdl)(`data/Users/${userId}/profile`)([profileId])
+) => http.backEnd.putTask(mdl)(`classes/Users/${userId}/profile`)([profileId])
 
 // export const unRelateProfileToUserTask = (http) => (mdl) => (userId) => (
 //   profileId
-// ) => http.backEnd.deleteTask(mdl)(`data/Users/${userId}/profile`)([profileId])
+// ) => http.backEnd.deleteTask(mdl)(`classes/Users/${userId}/profile`)([profileId])

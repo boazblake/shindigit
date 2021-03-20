@@ -13,8 +13,7 @@ export const Profile = () => {
       state.status = "failed"
     }
 
-    const onSuccess = (profile) => {
-      mdl.User.profile = profile
+    const onSuccess = () => {
       state.error = null
       state.status = "success"
       setUserToken(mdl)(mdl.User)
