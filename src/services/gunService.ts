@@ -1,7 +1,10 @@
 import Gun from "gun";
 import "gun/sea";
+
 const gun = Gun({
-  peers: ["https://gun-manhattan.herokuapp.com/gun"],
-  localStorage: false,
+  peers: ["https://shindigit-server.fly.dev/"],
+  localStorage: true,
+  radisk: true,
+  file: "@assets/db.json",
 });
 export { gun };

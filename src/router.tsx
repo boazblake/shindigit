@@ -5,15 +5,15 @@ import EventPage from '@routes/EventPage'
 import CreateEventPage from '@routes/CreateEventPage'
 import { Navigate, Outlet } from "react-router-dom";
 import { useUserContext } from "@contexts/UserContext"; // Adjust path based on your setup
+import {useCacheBuster} from '@hooks/bustCache'
 
 const PrivateRoute = ({ children }: { children: JSX.Element }) => {
   const { user } = useUserContext(); // Fetch user from context
-  console.log('WTF',user)
-
   return user ? <Outlet/> : <Navigate to="/" replace />;
 };
 
 const AppRouter = () => {
+  useCacheBuster()
   return (
     <Router>
     <Routes>

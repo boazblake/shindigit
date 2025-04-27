@@ -1,8 +1,7 @@
 import { gun } from "./gunService";
 
-// Define types for Gun.js user and auth results
 interface GunUser {
-  is: { alias: string; pub: string } | null; // Gun.js user data
+  is: { alias: string; pub: string } | null;
   leave: () => void;
   create: (
     alias: string,

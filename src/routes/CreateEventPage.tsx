@@ -7,11 +7,13 @@ const CreateEventPage = ( ) => {
   const navigate = useNavigate()
   const [title, setTitle] = useState('')
   const [description, setDescription] = useState('')
+  const [location, setLocation] = useState('')
+  const [capacity, setCapacity] = useState(0) //0 == no limit
 
   const handleSubmit = async (e:React.FormEvent) => {
     e.preventDefault()
     try {
-      await createEvent(title, description)
+      await createEvent({title, description, location,capacity })
       navigate('/home')
     } catch (err) {
       console.error('failed to create event',err)
@@ -29,6 +31,19 @@ return (
           placeholder="Event Title"
           value={title}
           onChange={(e) => setTitle(e.target.value)}
+          className="w-full p-2 border rounded"
+        />
+         <input
+          type="text"
+          placeholder="description"
+          value={description}
+          onChange={(e) => setDescription(e.target.value)}
+          className="w-full p-2 border rounded"
+        />       <input
+          type="text"
+          placeholder="Location"
+          value={location}
+          onChange={(e) => setLocation(e.target.value)}
           className="w-full p-2 border rounded"
         />
         <button type="submit" className="px-4 py-2 bg-blue-500 text-white rounded">
