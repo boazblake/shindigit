@@ -5,6 +5,6 @@ const gun = Gun({
   peers: ["https://shindigit-server.fly.dev/"],
   localStorage: true,
   radisk: true,
-  file: "@assets/db.json",
+  // file: "",
 });
 export { gun };

@@ -9,11 +9,12 @@ const CreateEventPage = ( ) => {
   const [description, setDescription] = useState('')
   const [location, setLocation] = useState('')
   const [capacity, setCapacity] = useState(0) //0 == no limit
+  const [isPrivate, toggleIsPrivate] = useState(false) //0 == no limit
 
   const handleSubmit = async (e:React.FormEvent) => {
     e.preventDefault()
     try {
-      await createEvent({title, description, location,capacity })
+      await createEvent({title, description, location,capacity, isPrivate })
       navigate('/home')
     } catch (err) {
       console.error('failed to create event',err)
@@ -39,14 +40,28 @@ return (
           value={description}
           onChange={(e) => setDescription(e.target.value)}
           className="w-full p-2 border rounded"
-        />       <input
+        />      
+        <input
           type="text"
           placeholder="Location"
           value={location}
           onChange={(e) => setLocation(e.target.value)}
           className="w-full p-2 border rounded"
         />
-        <button type="submit" className="px-4 py-2 bg-blue-500 text-white rounded">
+        <input
+          type="checkbox"
+          placeholder="isPrivate"
+          value={isPrivate}
+          onChange={() => toggleIsPrivate(!isPrivate)}
+          className="w-full p-2 border rounded"
+        />
+         <input
+          type="number"
+          placeholder="capacity"
+          value={capacity}
+          onChange={(e) => setCapacity(e.target.value)}
+          className="w-full p-2 border rounded"
+        />       <button type="submit" className="px-4 py-2 bg-blue-500 text-white rounded">
           Create Event
         </button>
       </form>

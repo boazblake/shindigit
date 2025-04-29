@@ -1,5 +1,6 @@
 import { useNavigate } from 'react-router-dom';
-import { useEvents } from '@/hooks/useEvents';
+import { useEvents } from '@hooks/useEvents';
+import EventCard from '@components/EventCard'
 
 interface Event {
   id: string;
@@ -21,17 +22,15 @@ const HomePage = () => {
       >
         Create Event
       </button>
+     <button
+        onClick={() => navigate('/profile')}
+        className="mb-4 px-4 py-2 bg-blue-500 text-white rounded"
+      >
+        Profile
+      </button>
       <div className="space-y-4">
         {events.map((event) => (
-          <div
-            key={event.id}
-            className="p-4 border rounded cursor-pointer"
-            onClick={() => navigate(`/event/${event.id}`)}
-          >
-            <h2 className="text-xl font-bold">{event.title}</h2>
-            <p>{event.description}</p>
-            <p className="text-sm text-gray-500">Created by {event.createdBy}</p>
-          </div>
+          <EventCard event={event} key={event.id}/>
         ))}
       </div>
     </div>

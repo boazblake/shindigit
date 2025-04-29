@@ -62,6 +62,7 @@ return (
 
 export const useUserContext = () => {
   const context = useContext(UserContext)
+  console.log('user',context)
   if(!context) {
     throw new Error('useUserContext must be used within a useprovider')
   }

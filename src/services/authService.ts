@@ -16,8 +16,8 @@ interface GunUser {
 }
 
 interface User {
-  name: string;
-  pubKey: string;
+  alias: string;
+  pub: string;
 }
 
 const user = gun.user() as GunUser;
@@ -29,7 +29,7 @@ export const authService = {
         if (result.err) {
           reject(new Error(`Signup failed: ${result.err}`));
         } else {
-          resolve({ name: alias, pubKey: result.pub || "" });
+          resolve({ alias, pub: result.pub || "" });
         }
       });
     }),
@@ -40,7 +40,7 @@ export const authService = {
         if (result.err) {
           reject(new Error(`Login failed: ${result.err}`));
         } else {
-          resolve({ name: alias, pubKey: result.pub || "" });
+          resolve({ alias, pub: result.pub || "" });
         }
       });
     }),
@@ -53,7 +53,7 @@ export const authService = {
 
   getCurrentUser: (): User | null => {
     if (user.is) {
-      return { name: user.is.alias, pubKey: user.is.pub };
+      return { alias: user.is.alias, pub: user.is.pub };
     }
     return null;
   },
