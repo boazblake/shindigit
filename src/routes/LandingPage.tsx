@@ -9,14 +9,18 @@ const LandingPage = () => {
   const [isLogin, setIsLogin] = useState(true);
   const [alias, setAlias] = useState("");
   const [password, setPassword] = useState("");
+  const [errorMessage, setErrorMessage] = useState("");
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setErrorMessage(""); // Clear previous error messages
     try {
       isLogin ? await login(alias, password) : await signup(alias, password);
       navigate("/home");
     } catch (err) {
       console.error("Auth Error", err);
+      // Display the error message to the user
+      setErrorMessage(err instanceof Error ? err.message : "An error occurred");
     }
   };
 
@@ -58,6 +62,11 @@ const LandingPage = () => {
           required
           className="border p-2 w-full rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
+        {errorMessage && (
+          <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
+            {errorMessage}
+          </div>
+        )}
         <button
           type="submit"
           className={`px-4 py-2 w-full rounded text-white ${
