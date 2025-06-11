@@ -2,7 +2,7 @@ import { useNavigate } from 'react-router-dom';
 import { useEvents } from '@hooks/useEvents';
 import { useUserContext } from '@contexts/UserContext';
 import EventCard from '@components/EventCard';
-import { Plus, Calendar, Search, Filter, User } from 'lucide-react';
+import { Plus, Calendar, Search, Filter, User, Users } from 'lucide-react';
 import { useState } from 'react';
 
 const HomePage = () => {
