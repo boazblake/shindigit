@@ -21,7 +21,6 @@ interface EventContextType {
 
 export const EventProvider = ({ children }: { children: ReactNode }) => {
   const { id } = useParams<{ id: string }>();
-  console.log('id', id);
   const { user } = useUserContext();
   const [event, setEvent] = useState<Event | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
@@ -29,9 +28,7 @@ export const EventProvider = ({ children }: { children: ReactNode }) => {
   const [isInvited, setIsInvited] = useState<boolean>(false);
   const [isPublicEvent, setIsPublicEvent] = useState<boolean>(false);
   const [accessAllowed, setAccessAllowed] = useState<boolean>(false);
-  const [invitations, setInvitations] = useState<EventContextType.invitations>(
-    {}
-  );
+  const [invitations, setInvitations] = useState<EventContextType['invitations']>({});
 
   const reset = () => {
     setEvent(null);
@@ -44,18 +41,31 @@ export const EventProvider = ({ children }: { children: ReactNode }) => {
       return;
     }
 
+    let isSubscribed = true;
     const eventRef = gun.get('events').get(id);
-    const listener = eventRef.on((data: unknown, key, _msg, ev) => {
+    
+    const listener = eventRef.on((data: unknown) => {
+      if (!isSubscribed) return;
+      
       try {
         if (!data || typeof data !== 'object' || !('title' in data)) {
           reset();
           return;
         }
+
         const loadedEvent: Event = { ...data, id } as Event;
         const userPub = user?.pub || '';
-        setEvent(loadedEvent);
-        setIsCreator(loadedEvent.createdBy == userPub);
-        setIsInvited(loadedEvent.invited?.[userPub] || isCreator);
+
+        // Only update state if the data has actually changed
+        setEvent(prev => {
+          if (prev && JSON.stringify(prev) === JSON.stringify(loadedEvent)) {
+            return prev;
+          }
+          return loadedEvent;
+        });
+
+        setIsCreator(loadedEvent.createdBy === userPub);
+        setIsInvited(loadedEvent.invited?.[userPub] || loadedEvent.createdBy === userPub);
         setInvitations(loadedEvent.invited || {});
         setIsPublicEvent(!loadedEvent.isPrivate);
         setAccessAllowed(
@@ -69,13 +79,13 @@ export const EventProvider = ({ children }: { children: ReactNode }) => {
         reset();
       }
     });
+
     return () => {
+      isSubscribed = false;
       eventRef.off();
       listener?.off();
     };
   }, [id, user]);
-
-  console.log('return', event);
 
   return (
     <EventContext.Provider

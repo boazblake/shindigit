@@ -3,19 +3,22 @@ export interface Event {
   title: string;
   description: string;
   location: string;
-  isPrivate: string;
-  createdBy: string;
   capacity: number;
+  isPrivate: boolean;
+  startDateTime: string;
+  endDateTime: string;
+  isAllDay: boolean;
+  creator: string;
   rsvps: Record<string, RSVPstatus>;
-  invited: Record<string, boolean>;
-  timestamp: number;
-  items: Record<string, EventItem>;
+  items: EventItem[];
+  invited?: Record<string, boolean>;
 }
 
-export type EventItem = {
+export interface EventItem {
+  id: string;
   name: string;
   quantity: number;
   claimed: Record<string, number>;
-};
+}
 
-export type RSVPstatus = "yes" | "no" | "maybe";
+export type RSVPstatus = 'going' | 'not_going' | 'maybe';

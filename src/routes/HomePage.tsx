@@ -1,203 +1,247 @@
-import { useNavigate } from 'react-router-dom';
-import { useEvents } from '@hooks/useEvents';
-import { useUserContext } from '@contexts/UserContext';
-import EventCard from '@components/EventCard';
-import { Plus, Calendar, Search, Filter, User, Users } from 'lucide-react';
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useEvents } from '../hooks/useEvents';
+import { useUserContext } from '../contexts/UserContext';
+import { Event } from '../types/event';
+import { Calendar, Search, Filter, Plus, Users, Gift, Clock, MapPin } from 'lucide-react';
 
-const HomePage = () => {
+export default function HomePage() {
+  const navigate = useNavigate();
   const { events } = useEvents();
   const { user } = useUserContext();
-  const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState('');
-  const [filterType, setFilterType] = useState<'all' | 'attending' | 'created'>('all');
+  const [filter, setFilter] = useState<'all' | 'upcoming' | 'past'>('all');
 
-  const filteredEvents = events.filter(event => {
-    const matchesSearch = event.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         event.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         event.location.toLowerCase().includes(searchTerm.toLowerCase());
-    
-    if (!matchesSearch) return false;
+  const now = new Date();
+  const upcomingEvents = events.filter(event => new Date(event.startDateTime) > now);
+  const pastEvents = events.filter(event => new Date(event.startDateTime) <= now);
 
-    switch (filterType) {
-      case 'attending':
-        return event.rsvps?.[user?.pub || ''] === 'yes';
-      case 'created':
-        return event.createdBy === user?.pub;
-      default:
-        return true;
-    }
-  });
+  const filteredEvents = (events: Event[]) => {
+    console.log(events)
+    return !events.length ? []: 
+     events.filter(event => {
+      console.log(event, searchTerm)
+      const matchesSearch = event?.title?.toLowerCase().includes(searchTerm?.toLowerCase()??'' ) ||
+        event?.description.toLowerCase().includes(searchTerm?.toLowerCase());
+      return matchesSearch;
+    });
+  };
+console.log(upcomingEvents, pastEvents)
+  const displayEvents = filter === 'upcoming' ? filteredEvents(upcomingEvents) :
+    filter === 'past' ? filteredEvents(pastEvents) :
+    filteredEvents(events);
 
-  const upcomingEvents = filteredEvents.filter(event => event.timestamp > Date.now());
-  const pastEvents = filteredEvents.filter(event => event.timestamp <= Date.now());
+  const totalRSVPs = events.reduce((acc: number, event: Event) => {
+    const rsvpCount = Object.values(event.rsvps || {}).filter(status => status === 'going').length;
+    return acc + rsvpCount;
+  }, 0);
+
+  const totalItems = events.reduce((acc: number, event: Event) => {
+    const itemCount = event.items?.length || 0;
+    return acc + itemCount;
+  }, 0);
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <div className="bg-white border-b border-gray-200">
-        <div className="max-w-4xl mx-auto px-4 py-6">
-          <div className="flex items-center justify-between mb-6">
-            <div>
-              <h1 className="text-3xl font-bold text-gray-900">
-                Welcome back, {user?.alias}!
-              </h1>
-              <p className="text-gray-600 mt-1">
-                Discover and manage your events
-              </p>
-            </div>
-            <button
-              onClick={() => navigate('/profile')}
-              className="p-2 text-gray-400 hover:text-gray-600 transition-colors"
-            >
-              <User className="w-6 h-6" />
-            </button>
-          </div>
+    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white">
+      {/* Header Section */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="flex flex-col items-center space-y-4">
+          <h1 className="text-3xl font-bold text-gray-900">
+            Welcome back, {user?.alias || 'Friend'}!
+          </h1>
+          <button
+            onClick={() => navigate('/profile')}
+            className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-indigo-700 bg-indigo-100 hover:bg-indigo-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors"
+          >
+            View Profile
+          </button>
+        </div>
+      </div>
 
-          {/* Search and Filters */}
-          <div className="flex flex-col sm:flex-row gap-4 mb-6">
-            <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+      {/* Stats Section */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="bg-white rounded-lg shadow-sm p-6 border border-gray-100">
+            <div className="flex items-center space-x-4">
+              <div className="p-3 bg-indigo-100 rounded-lg">
+                <Calendar className="h-6 w-6 text-indigo-600" />
+              </div>
+              <div>
+                <p className="text-sm font-medium text-gray-500">Upcoming Events</p>
+                <p className="text-2xl font-semibold text-gray-900">{upcomingEvents.length}</p>
+              </div>
+            </div>
+          </div>
+          <div className="bg-white rounded-lg shadow-sm p-6 border border-gray-100">
+            <div className="flex items-center space-x-4">
+              <div className="p-3 bg-green-100 rounded-lg">
+                <Users className="h-6 w-6 text-green-600" />
+              </div>
+              <div>
+                <p className="text-sm font-medium text-gray-500">Total RSVPs</p>
+                <p className="text-2xl font-semibold text-gray-900">{totalRSVPs}</p>
+              </div>
+            </div>
+          </div>
+          <div className="bg-white rounded-lg shadow-sm p-6 border border-gray-100">
+            <div className="flex items-center space-x-4">
+              <div className="p-3 bg-purple-100 rounded-lg">
+                <Gift className="h-6 w-6 text-purple-600" />
+              </div>
+              <div>
+                <p className="text-sm font-medium text-gray-500">Items Shared</p>
+                <p className="text-2xl font-semibold text-gray-900">{totalItems}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Search and Filters */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-8">
+        <div className="flex flex-col sm:flex-row gap-4">
+          <div className="flex-1">
+            <div className="relative">
+              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <Search className="h-5 w-5 text-gray-400" />
+              </div>
               <input
                 type="text"
                 placeholder="Search events..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
               />
             </div>
-            
-            <div className="flex gap-2">
+          </div>
+          <div className="sm:w-48">
+            <div className="relative">
+              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <Filter className="h-5 w-5 text-gray-400" />
+              </div>
               <select
-                value={filterType}
-                onChange={(e) => setFilterType(e.target.value as any)}
-                className="px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white"
+                value={filter}
+                onChange={(e) => setFilter(e.target.value as 'all' | 'upcoming' | 'past')}
+                className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md leading-5 bg-white focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
               >
                 <option value="all">All Events</option>
-                <option value="attending">Attending</option>
-                <option value="created">My Events</option>
+                <option value="upcoming">Upcoming</option>
+                <option value="past">Past</option>
               </select>
             </div>
-          </div>
-
-          {/* Quick Actions */}
-          <div className="flex gap-3">
-            <button
-              onClick={() => navigate('/create')}
-              className="flex items-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium shadow-sm"
-            >
-              <Plus className="w-5 h-5" />
-              Create Event
-            </button>
-            <button
-              onClick={() => navigate('/profile')}
-              className="flex items-center gap-2 px-6 py-3 bg-white text-gray-700 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors font-medium"
-            >
-              <User className="w-5 h-5" />
-              Profile
-            </button>
           </div>
         </div>
       </div>
 
-      {/* Content */}
-      <div className="max-w-4xl mx-auto px-4 py-8">
-        {/* Stats Cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
-          <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
-            <div className="flex items-center gap-3">
-              <div className="p-2 bg-blue-100 rounded-lg">
-                <Calendar className="w-6 h-6 text-blue-600" />
-              </div>
-              <div>
-                <p className="text-2xl font-bold text-gray-900">{upcomingEvents.length}</p>
-                <p className="text-sm text-gray-600">Upcoming Events</p>
-              </div>
-            </div>
-          </div>
-          
-          <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
-            <div className="flex items-center gap-3">
-              <div className="p-2 bg-green-100 rounded-lg">
-                <Users className="w-6 h-6 text-green-600" />
-              </div>
-              <div>
-                <p className="text-2xl font-bold text-gray-900">
-                  {events.filter(e => e.rsvps?.[user?.pub || ''] === 'yes').length}
-                </p>
-                <p className="text-sm text-gray-600">Attending</p>
-              </div>
-            </div>
-          </div>
-          
-          <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
-            <div className="flex items-center gap-3">
-              <div className="p-2 bg-purple-100 rounded-lg">
-                <Plus className="w-6 h-6 text-purple-600" />
-              </div>
-              <div>
-                <p className="text-2xl font-bold text-gray-900">
-                  {events.filter(e => e.createdBy === user?.pub).length}
-                </p>
-                <p className="text-sm text-gray-600">Created</p>
-              </div>
-            </div>
-          </div>
+      {/* Quick Actions */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-8">
+        <div className="flex justify-center space-x-4">
+          <button
+            onClick={() => navigate('/create-event')}
+            className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors"
+          >
+            <Plus className="h-5 w-5 mr-2" />
+            Create Event
+          </button>
+          <button
+            onClick={() => navigate('/events')}
+            className="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors"
+          >
+            <Calendar className="h-5 w-5 mr-2" />
+            View All Events
+          </button>
         </div>
+      </div>
 
-        {/* Upcoming Events */}
-        {upcomingEvents.length > 0 && (
-          <div className="mb-8">
-            <h2 className="text-2xl font-bold text-gray-900 mb-6">Upcoming Events</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {upcomingEvents.map((event) => (
-                <EventCard event={event} key={event.id} />
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* Past Events */}
-        {pastEvents.length > 0 && (
-          <div className="mb-8">
-            <h2 className="text-2xl font-bold text-gray-900 mb-6">Past Events</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {pastEvents.map((event) => (
-                <EventCard event={event} key={event.id} />
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* Empty State */}
-        {filteredEvents.length === 0 && (
+      {/* Events Sections */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        {displayEvents.length === 0 ? (
           <div className="text-center py-12">
-            <div className="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-              <Calendar className="w-12 h-12 text-gray-400" />
-            </div>
-            <h3 className="text-xl font-semibold text-gray-900 mb-2">
-              {searchTerm ? 'No events found' : 'No events yet'}
-            </h3>
-            <p className="text-gray-600 mb-6">
-              {searchTerm 
-                ? 'Try adjusting your search or filters'
-                : 'Create your first event to get started!'
-              }
-            </p>
-            {!searchTerm && (
+            <Calendar className="h-12 w-12 text-gray-400 mx-auto" />
+            <h3 className="mt-2 text-sm font-medium text-gray-900">No events found</h3>
+            <p className="mt-1 text-sm text-gray-500">Get started by creating a new event.</p>
+            <div className="mt-6">
               <button
-                onClick={() => navigate('/create')}
-                className="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
+                onClick={() => navigate('/create-event')}
+                className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors"
               >
-                <Plus className="w-5 h-5" />
-                Create Your First Event
+                <Plus className="h-5 w-5 mr-2" />
+                Create Event
               </button>
+            </div>
+          </div>
+        ) : (
+          <div className="space-y-8">
+            {filter !== 'past' && upcomingEvents.length > 0 && (
+              <div>
+                <h2 className="text-xl font-semibold text-gray-900 mb-4">Upcoming Events</h2>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {filteredEvents(upcomingEvents).map(event => (
+                    <div
+                      key={event.id}
+                      onClick={() => navigate(`/event/${event.id}`)}
+                      className="bg-white rounded-lg shadow-sm border border-gray-100 hover:shadow-md transition-shadow cursor-pointer"
+                    >
+                      <div className="p-6">
+                        <h3 className="text-lg font-medium text-gray-900 mb-2">{event.title}</h3>
+                        <p className="text-sm text-gray-500 mb-4 line-clamp-2">{event.description}</p>
+                        <div className="space-y-2">
+                          <div className="flex items-center text-sm text-gray-500">
+                            <Clock className="h-4 w-4 mr-2" />
+                            {new Date(event.startDateTime).toLocaleString()}
+                          </div>
+                          <div className="flex items-center text-sm text-gray-500">
+                            <MapPin className="h-4 w-4 mr-2" />
+                            {event.location}
+                          </div>
+                          <div className="flex items-center text-sm text-gray-500">
+                            <Users className="h-4 w-4 mr-2" />
+                            {event.rsvps?.length || 0} RSVPs
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {filter !== 'upcoming' && pastEvents.length > 0 && (
+              <div>
+                <h2 className="text-xl font-semibold text-gray-900 mb-4">Past Events</h2>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {filteredEvents(pastEvents).map(event => (
+                    <div
+                      key={event.id}
+                      onClick={() => navigate(`/event/${event.id}`)}
+                      className="bg-white rounded-lg shadow-sm border border-gray-100 hover:shadow-md transition-shadow cursor-pointer"
+                    >
+                      <div className="p-6">
+                        <h3 className="text-lg font-medium text-gray-900 mb-2">{event.title}</h3>
+                        <p className="text-sm text-gray-500 mb-4 line-clamp-2">{event.description}</p>
+                        <div className="space-y-2">
+                          <div className="flex items-center text-sm text-gray-500">
+                            <Clock className="h-4 w-4 mr-2" />
+                            {new Date(event.startDateTime).toLocaleString()}
+                          </div>
+                          <div className="flex items-center text-sm text-gray-500">
+                            <MapPin className="h-4 w-4 mr-2" />
+                            {event.location}
+                          </div>
+                          <div className="flex items-center text-sm text-gray-500">
+                            <Users className="h-4 w-4 mr-2" />
+                            {event.rsvps?.length || 0} RSVPs
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
             )}
           </div>
         )}
       </div>
     </div>
   );
-};
-
-export default HomePage;
+}

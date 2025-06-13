@@ -2,7 +2,7 @@ import Gun from "gun";
 import "gun/sea";
 
 const gun = Gun({
-  peers: ["https://shindigit-server.fly.dev/"],
+  peers: ["wss://shindigit-server.fly.dev/gun"],
   localStorage: true,
   radisk: true,
   // file: "",
