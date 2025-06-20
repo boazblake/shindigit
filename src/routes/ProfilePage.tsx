@@ -1,26 +1,52 @@
-import {useNavigate} from 'react-router-dom'
-import {useUserContext} from '@contexts/UserContext'
+import {
+  IonCard,
+  IonCardHeader,
+  IonCardTitle,
+  IonCardContent,
+  IonButton,
+  IonText,
+} from '@ionic/react';
+import { useIonRouter } from '@ionic/react';
+import { useUserContext } from '@contexts/UserContext';
 
-const ProfilePage = () => {
-  const {user, logout} = useUserContext()
-  const navigate = useNavigate()
+const ProfilePage: React.FC = () => {
+  const { user, logout } = useUserContext();
+  const router = useIonRouter();
 
   const handleLogout = () => {
-    logout()
-    navigate('/')
-  }
+    logout();
+    router.push('/', 'root');
+  };
 
-console.log(user)
   return (
-    <div className="p-4">
-    <h1 className="text-2xl mb-4">Profile</h1>
-    <div className="space-y-2">
-    <p><strong>Alias:</strong> {user.alias}</p>
-    <p><strong>Public Key:</strong> {user.pub}</p>
-    </div>
-    <button onClick={handleLogout} className="mt-6 px-4 py-2 bg-red-500 text-white rounded">Logout</button>
-    </div>
-  )
-}
+    <IonCard>
+      <IonCardHeader>
+        <IonCardTitle>Profile</IonCardTitle>
+      </IonCardHeader>
+      <IonCardContent>
+        <IonText color="dark">
+          <h2 style={{ fontSize: 18, fontWeight: 500, marginBottom: 16 }}>
+            User Information
+          </h2>
+        </IonText>
+        <div style={{ marginBottom: 16 }}>
+          <p>
+            <strong>Alias:</strong> {user?.alias}
+          </p>
+          <p>
+            <strong>Public Key:</strong> {user?.pub}
+          </p>
+        </div>
+        <IonButton
+          color="danger"
+          expand="block"
+          onClick={handleLogout}
+        >
+          Logout
+        </IonButton>
+      </IonCardContent>
+    </IonCard>
+  );
+};
 
-export default ProfilePage
+export default ProfilePage;

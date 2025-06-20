@@ -1,4 +1,3 @@
-import { useContext } from 'react';
 import { useGunContext } from '../contexts/GunContext';
 
 export const useGun = () => {
@@ -7,4 +6,4 @@ export const useGun = () => {
     throw new Error('useGun must be used within a GunProvider');
   }
   return { gun, user: gun.user() };
-}; 
+};

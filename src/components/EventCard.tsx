@@ -1,11 +1,11 @@
-import { Event } from '@types/event';
+import type { Event } from '../types/event.ts';
 import { useNavigate } from 'react-router-dom';
 import { Calendar, MapPin, Users, Lock, Globe } from 'lucide-react';
 
 const EventCard = ({ event }: { event: Event }) => {
   const navigate = useNavigate();
 
-  const formatDate = (timestamp: number) => {
+  const formatDate = (timestamp: string) => {
     return new Date(timestamp).toLocaleDateString('en-US', {
       weekday: 'short',
       month: 'short',
@@ -15,22 +15,26 @@ const EventCard = ({ event }: { event: Event }) => {
     });
   };
 
-  const getAttendeeCount = () => {
-    return Object.values(event.rsvps || {}).filter(
-      status => status === 'yes'
-    ).length;
-  };
+  const getAttendeeCount = () =>
+    Object.values(event.rsvps || {}).filter(status => status === 'yes').length;
 
-  const getMaybeCount = () => {
-    return Object.values(event.rsvps || {}).filter(
-      status => status === 'maybe'
-    ).length;
+  const getMaybeCount = () =>
+    Object.values(event.rsvps || {}).filter(status => status === 'maybe').length;
+
+  const handleClick = () => navigate(`/event/${event.id}`);
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
+    if (e.key === 'Enter' || e.key === ' ') handleClick();
   };
 
   return (
     <div
       className="group bg-white rounded-xl shadow-sm border border-gray-100 hover:shadow-lg hover:border-gray-200 transition-all duration-300 cursor-pointer overflow-hidden"
-      onClick={() => navigate(`/event/${event.id}`)}
+      onClick={handleClick}
+      role="button"
+      tabIndex={0}
+      onKeyDown={handleKeyDown}
+      aria-label={`View event: ${event.title}`}
     >
       <div className="p-6">
         <div className="flex items-start justify-between mb-4">
@@ -54,7 +58,7 @@ const EventCard = ({ event }: { event: Event }) => {
         <div className="space-y-3">
           <div className="flex items-center gap-2 text-sm text-gray-500">
             <Calendar className="w-4 h-4" />
-            <span>{formatDate(event.timestamp)}</span>
+            <span>{formatDate(event.startDateTime)}</span>
           </div>
 
           <div className="flex items-center gap-2 text-sm text-gray-500">
@@ -70,7 +74,6 @@ const EventCard = ({ event }: { event: Event }) => {
                 {getMaybeCount() > 0 && `, ${getMaybeCount()} maybe`}
               </span>
             </div>
-
             {event.capacity > 0 && (
               <div className="text-xs text-gray-400">
                 {event.capacity - getAttendeeCount()} spots left
@@ -82,7 +85,7 @@ const EventCard = ({ event }: { event: Event }) => {
         <div className="mt-4 pt-4 border-t border-gray-100">
           <div className="flex items-center justify-between">
             <span className="text-xs text-gray-400">
-              Created by {event.createdBy.slice(0, 8)}...
+              Created by {event.createdBy?.slice(0, 8) ?? 'Unknown'}...
             </span>
             <div className="flex items-center gap-1">
               <div className="w-2 h-2 bg-green-400 rounded-full"></div>

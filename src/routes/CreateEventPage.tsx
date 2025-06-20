@@ -1,7 +1,34 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import {
+  IonInput,
+  IonTextarea,
+  IonButton,
+  IonGrid,
+  IonRow,
+  IonCol,
+  IonLabel,
+  IonList,
+  IonItem,
+  IonCheckbox,
+  IonIcon,
+  IonSpinner,
+  IonText,
+  IonCard,
+  IonCardHeader,
+  IonCardTitle,
+  IonCardContent,
+  useIonRouter,
+} from '@ionic/react';
 import { useEvents } from '../hooks/useEvents';
-import { Calendar, MapPin, Users, Lock, Globe, Plus, X, Clock, Gift } from 'lucide-react';
+import {
+  calendarOutline,
+  locationOutline,
+  peopleOutline,
+  addOutline,
+  closeOutline,
+  timeOutline,
+  giftOutline,
+} from 'ionicons/icons';
 
 interface ItemInput {
   id: string;
@@ -9,9 +36,9 @@ interface ItemInput {
   quantity: number;
 }
 
-const CreateEventPage = () => {
+const CreateEventPage: React.FC = () => {
   const { createEvent } = useEvents();
-  const navigate = useNavigate();
+  const router = useIonRouter();
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [location, setLocation] = useState('');
@@ -24,29 +51,41 @@ const CreateEventPage = () => {
   const [startTime, setStartTime] = useState('');
   const [endDate, setEndDate] = useState('');
   const [endTime, setEndTime] = useState('');
+  const [error, setError] = useState<string | null>(null);
 
   const addItemInput = () => {
-    setItemInputs([...itemInputs, { id: crypto.randomUUID(), name: '', quantity: 1 }]);
+    setItemInputs([
+      ...itemInputs,
+      { id: crypto.randomUUID(), name: '', quantity: 1 },
+    ]);
   };
 
   const removeItemInput = (id: string) => {
     setItemInputs(itemInputs.filter(item => item.id !== id));
   };
 
-  const updateItemInput = (id: string, field: keyof ItemInput, value: string | number) => {
-    setItemInputs(itemInputs.map(item => 
-      item.id === id ? { ...item, [field]: value } : item
-    ));
+  const updateItemInput = (
+    id: string,
+    field: keyof ItemInput,
+    value: string | number
+  ) => {
+    setItemInputs(
+      itemInputs.map(item =>
+        item.id === id ? { ...item, [field]: value } : item
+      )
+    );
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
+    setError(null);
+
     try {
-      const startDateTime = isAllDay 
+      const startDateTime = isAllDay
         ? new Date(startDate).toISOString()
         : new Date(`${startDate}T${startTime}`).toISOString();
-      
+
       const endDateTime = isAllDay
         ? new Date(endDate).toISOString()
         : new Date(`${endDate}T${endTime}`).toISOString();
@@ -60,268 +99,254 @@ const CreateEventPage = () => {
         startDateTime,
         endDateTime,
         isAllDay,
-        itemInputs: itemInputs.map(({ name, quantity }) => ({ name, quantity })),
+        itemInputs,
       });
-      navigate('/home');
+      router.push('/tabs/home', 'root');
     } catch (err) {
-      console.error('failed to create event', err);
+      console.error('Failed to create event:', err);
+      setError('Failed to create event. Please try again.');
       setIsSubmitting(false);
     }
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white py-12">
-      <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8">
-          <div className="text-center mb-8">
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">Create New Event</h1>
-            <p className="text-gray-600">Fill in the details to create your event</p>
+    <IonCard>
+      <IonCardHeader>
+        <IonCardTitle>Create a New Event</IonCardTitle>
+        <IonText color="medium">
+          <p style={{ marginTop: 8, marginBottom: 0 }}>
+            Plan your event with all the details
+          </p>
+        </IonText>
+      </IonCardHeader>
+      <IonCardContent>
+        {error && (
+          <div style={{ marginBottom: 16, background: '#FEF2F2', border: '1px solid #FECACA', borderRadius: 8, padding: 12, color: '#B91C1C', fontSize: 14 }}>
+            {error}
           </div>
+        )}
 
-          <form onSubmit={handleSubmit} className="space-y-8">
-            {/* Basic Info */}
-            <div className="space-y-6">
-              <div>
-                <label htmlFor="title" className="block text-sm font-medium text-gray-700 mb-1">
-                  Event Title
-                </label>
-                <input
-                  id="title"
-                  type="text"
-                  placeholder="Enter event title"
+        <form onSubmit={handleSubmit}>
+          {/* Basic Info */}
+          <IonText color="dark">
+            <h2 style={{ fontSize: 18, fontWeight: 500, marginTop: 24, marginBottom: 8 }}>Basic Info</h2>
+          </IonText>
+          <IonGrid>
+            <IonRow>
+              <IonCol size="12">
+                <IonLabel position="stacked">
+                  Event Title <IonText color="danger">*</IonText>
+                </IonLabel>
+                <IonInput
                   value={title}
-                  onChange={e => setTitle(e.target.value)}
-                  className="w-full px-4 py-3 rounded-lg border border-gray-200 focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
+                  onIonChange={e => setTitle(e.detail.value!)}
+                  placeholder="e.g., Summer Picnic"
                   required
                 />
-              </div>
-
-              <div>
-                <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-1">
-                  Description
-                </label>
-                <textarea
-                  id="description"
-                  placeholder="Describe your event"
+              </IonCol>
+              <IonCol size="12">
+                <IonLabel position="stacked">
+                  Description <IonText color="danger">*</IonText>
+                </IonLabel>
+                <IonTextarea
                   value={description}
-                  onChange={e => setDescription(e.target.value)}
-                  className="w-full px-4 py-3 rounded-lg border border-gray-200 focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all min-h-[100px]"
+                  onIonChange={e => setDescription(e.detail.value!)}
+                  placeholder="Describe your event..."
                   required
+                  autoGrow
                 />
-              </div>
-
-              <div>
-                <label htmlFor="location" className="block text-sm font-medium text-gray-700 mb-1">
-                  Location
-                </label>
-                <div className="relative">
-                  <MapPin className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-                  <input
-                    id="location"
-                    type="text"
-                    placeholder="Enter event location"
-                    value={location}
-                    onChange={e => setLocation(e.target.value)}
-                    className="w-full pl-10 pr-4 py-3 rounded-lg border border-gray-200 focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
-                    required
-                  />
-                </div>
-              </div>
-            </div>
-
-            {/* Date and Time */}
-            <div className="space-y-6">
-              <div className="flex items-center gap-2 mb-4">
-                <input
-                  type="checkbox"
-                  id="isAllDay"
-                  checked={isAllDay}
-                  onChange={e => setIsAllDay(e.target.checked)}
-                  className="w-4 h-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500"
-                />
-                <label htmlFor="isAllDay" className="text-sm font-medium text-gray-700">
-                  All-day event
-                </label>
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                <div>
-                  <label htmlFor="startDate" className="block text-sm font-medium text-gray-700 mb-1">
-                    Start Date
-                  </label>
-                  <div className="relative">
-                    <Calendar className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-                    <input
-                      id="startDate"
-                      type="date"
-                      value={startDate}
-                      onChange={e => setStartDate(e.target.value)}
-                      className="w-full pl-10 pr-4 py-3 rounded-lg border border-gray-200 focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
-                      required
-                    />
-                  </div>
-                </div>
-
-                {!isAllDay && (
-                  <div>
-                    <label htmlFor="startTime" className="block text-sm font-medium text-gray-700 mb-1">
-                      Start Time
-                    </label>
-                    <div className="relative">
-                      <Clock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-                      <input
-                        id="startTime"
-                        type="time"
-                        value={startTime}
-                        onChange={e => setStartTime(e.target.value)}
-                        className="w-full pl-10 pr-4 py-3 rounded-lg border border-gray-200 focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
-                        required
-                      />
-                    </div>
-                  </div>
-                )}
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                <div>
-                  <label htmlFor="endDate" className="block text-sm font-medium text-gray-700 mb-1">
-                    End Date
-                  </label>
-                  <div className="relative">
-                    <Calendar className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-                    <input
-                      id="endDate"
-                      type="date"
-                      value={endDate}
-                      onChange={e => setEndDate(e.target.value)}
-                      className="w-full pl-10 pr-4 py-3 rounded-lg border border-gray-200 focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
-                      required
-                    />
-                  </div>
-                </div>
-
-                {!isAllDay && (
-                  <div>
-                    <label htmlFor="endTime" className="block text-sm font-medium text-gray-700 mb-1">
-                      End Time
-                    </label>
-                    <div className="relative">
-                      <Clock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-                      <input
-                        id="endTime"
-                        type="time"
-                        value={endTime}
-                        onChange={e => setEndTime(e.target.value)}
-                        className="w-full pl-10 pr-4 py-3 rounded-lg border border-gray-200 focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
-                        required
-                      />
-                    </div>
-                  </div>
-                )}
-              </div>
-            </div>
-
-            {/* Capacity and Privacy */}
-            <div className="space-y-6">
-              <div>
-                <label htmlFor="capacity" className="block text-sm font-medium text-gray-700 mb-1">
-                  Capacity
-                </label>
-                <div className="relative">
-                  <Users className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-                  <input
-                    id="capacity"
-                    type="number"
-                    min="0"
-                    placeholder="Enter capacity (0 for unlimited)"
-                    value={capacity}
-                    onChange={e => setCapacity(parseInt(e.target.value) || 0)}
-                    className="w-full pl-10 pr-4 py-3 rounded-lg border border-gray-200 focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
-                  />
-                </div>
-              </div>
-
-              <div className="flex items-center gap-2">
-                <input
-                  type="checkbox"
-                  id="isPrivate"
-                  checked={isPrivate}
-                  onChange={e => setIsPrivate(e.target.checked)}
-                  className="w-4 h-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500"
-                />
-                <label htmlFor="isPrivate" className="text-sm font-medium text-gray-700">
-                  Private Event
-                </label>
-              </div>
-            </div>
-
-            {/* Items */}
-            <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <label className="block text-sm font-medium text-gray-700">
-                  Items to Bring
-                </label>
-                <button
-                  type="button"
-                  onClick={addItemInput}
-                  className="inline-flex items-center px-3 py-1.5 border border-transparent text-sm font-medium rounded-md text-indigo-700 bg-indigo-100 hover:bg-indigo-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors"
+              </IonCol>
+              <IonCol size="12">
+                <IonLabel position="stacked">
+                  Location <IonText color="danger">*</IonText>
+                </IonLabel>
+                <IonInput
+                  value={location}
+                  onIonChange={e => setLocation(e.detail.value!)}
+                  placeholder="e.g., Central Park"
+                  required
+                  clearInput
                 >
-                  <Plus className="h-4 w-4 mr-1" />
-                  Add Item
-                </button>
-              </div>
+                  <IonIcon icon={locationOutline} slot="start" />
+                </IonInput>
+              </IonCol>
+            </IonRow>
+          </IonGrid>
 
-              <div className="space-y-4">
-                {itemInputs.map(item => (
-                  <div key={item.id} className="flex items-center gap-4">
-                    <div className="flex-1">
-                      <div className="relative">
-                        <Gift className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-                        <input
-                          type="text"
-                          placeholder="Item name"
-                          value={item.name}
-                          onChange={e => updateItemInput(item.id, 'name', e.target.value)}
-                          className="w-full pl-10 pr-4 py-3 rounded-lg border border-gray-200 focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
-                        />
-                      </div>
-                    </div>
-                    <div className="w-24">
-                      <input
-                        type="number"
-                        min="1"
-                        placeholder="Qty"
-                        value={item.quantity}
-                        onChange={e => updateItemInput(item.id, 'quantity', parseInt(e.target.value) || 1)}
-                        className="w-full px-4 py-3 rounded-lg border border-gray-200 focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
-                      />
-                    </div>
-                    <button
-                      type="button"
-                      onClick={() => removeItemInput(item.id)}
-                      className="p-2 text-gray-400 hover:text-gray-600 transition-colors"
-                    >
-                      <X className="h-5 w-5" />
-                    </button>
-                  </div>
-                ))}
-              </div>
-            </div>
+          {/* Date & Time */}
+          <IonText color="dark">
+            <h2 style={{ fontSize: 18, fontWeight: 500, marginTop: 32, marginBottom: 8 }}>Date & Time</h2>
+          </IonText>
+          <IonItem lines="none">
+            <IonCheckbox
+              checked={isAllDay}
+              onIonChange={e => setIsAllDay(e.detail.checked!)}
+              slot="start"
+            />
+            <IonLabel>All-day event</IonLabel>
+          </IonItem>
+          <IonGrid>
+            <IonRow>
+              <IonCol size="12" sizeMd="6">
+                <IonLabel position="stacked">
+                  Start Date <IonText color="danger">*</IonText>
+                </IonLabel>
+                <IonInput
+                  type="date"
+                  value={startDate}
+                  onIonChange={e => setStartDate(e.detail.value!)}
+                  required
+                >
+                  <IonIcon icon={calendarOutline} slot="start" />
+                </IonInput>
+              </IonCol>
+              {!isAllDay && (
+                <IonCol size="12" sizeMd="6">
+                  <IonLabel position="stacked">
+                    Start Time <IonText color="danger">*</IonText>
+                  </IonLabel>
+                  <IonInput
+                    type="time"
+                    value={startTime}
+                    onIonChange={e => setStartTime(e.detail.value!)}
+                    required
+                  >
+                    <IonIcon icon={timeOutline} slot="start" />
+                  </IonInput>
+                </IonCol>
+              )}
+              <IonCol size="12" sizeMd="6">
+                <IonLabel position="stacked">
+                  End Date <IonText color="danger">*</IonText>
+                </IonLabel>
+                <IonInput
+                  type="date"
+                  value={endDate}
+                  onIonChange={e => setEndDate(e.detail.value!)}
+                  required
+                >
+                  <IonIcon icon={calendarOutline} slot="start" />
+                </IonInput>
+              </IonCol>
+              {!isAllDay && (
+                <IonCol size="12" sizeMd="6">
+                  <IonLabel position="stacked">
+                    End Time <IonText color="danger">*</IonText>
+                  </IonLabel>
+                  <IonInput
+                    type="time"
+                    value={endTime}
+                    onIonChange={e => setEndTime(e.detail.value!)}
+                    required
+                  >
+                    <IonIcon icon={timeOutline} slot="start" />
+                  </IonInput>
+                </IonCol>
+              )}
+            </IonRow>
+          </IonGrid>
 
-            {/* Submit Button */}
-            <div className="flex justify-end">
-              <button
-                type="submit"
-                disabled={isSubmitting}
-                className="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                {isSubmitting ? 'Creating...' : 'Create Event'}
-              </button>
-            </div>
-          </form>
-        </div>
-      </div>
-    </div>
+          {/* Event Details */}
+          <IonText color="dark">
+            <h2 style={{ fontSize: 18, fontWeight: 500, marginTop: 32, marginBottom: 8 }}>Event Details</h2>
+          </IonText>
+          <IonGrid>
+            <IonRow>
+              <IonCol size="12" sizeMd="6">
+                <IonLabel position="stacked">Capacity</IonLabel>
+                <IonInput
+                  type="number"
+                  min="0"
+                  value={capacity === 0 ? '' : capacity}
+                  onIonChange={e => setCapacity(parseInt(e.detail.value!) || 0)}
+                  placeholder="0 for unlimited"
+                >
+                  <IonIcon icon={peopleOutline} slot="start" />
+                </IonInput>
+                <IonText color="medium" style={{ fontSize: 12 }}>
+                  Enter 0 for unlimited attendees
+                </IonText>
+              </IonCol>
+              <IonCol size="12" sizeMd="6" className="ion-align-items-center ion-justify-content-start">
+                <IonItem lines="none" style={{ marginTop: 20 }}>
+                  <IonCheckbox
+                    checked={isPrivate}
+                    onIonChange={e => setIsPrivate(e.detail.checked!)}
+                    slot="start"
+                  />
+                  <IonLabel>Private Event</IonLabel>
+                </IonItem>
+              </IonCol>
+            </IonRow>
+          </IonGrid>
+
+          {/* Items to Bring */}
+          <IonText color="dark">
+            <h2 style={{ fontSize: 18, fontWeight: 500, marginTop: 32, marginBottom: 8 }}>Items to Bring</h2>
+          </IonText>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
+            <IonButton size="small" fill="outline" color="primary" onClick={addItemInput}>
+              <IonIcon icon={addOutline} slot="start" />
+              Add Item
+            </IonButton>
+          </div>
+          <IonList>
+            {itemInputs.length === 0 && (
+              <IonItem>
+                <IonLabel color="medium">
+                  No items added yet. Click "Add Item" to start.
+                </IonLabel>
+              </IonItem>
+            )}
+            {itemInputs.map(item => (
+              <IonItem key={item.id}>
+                <IonIcon icon={giftOutline} slot="start" />
+                <IonInput
+                  value={item.name}
+                  placeholder="e.g., Snacks"
+                  onIonChange={e =>
+                    updateItemInput(item.id, 'name', e.detail.value!)
+                  }
+                  style={{ maxWidth: 160 }}
+                />
+                <IonInput
+                  type="number"
+                  min="1"
+                  value={item.quantity}
+                  placeholder="Qty"
+                  onIonChange={e =>
+                    updateItemInput(item.id, 'quantity', parseInt(e.detail.value!) || 1)
+                  }
+                  style={{ maxWidth: 80 }}
+                />
+                <IonButton fill="clear" color="danger" size="small" onClick={() => removeItemInput(item.id)}>
+                  <IonIcon icon={closeOutline} />
+                </IonButton>
+              </IonItem>
+            ))}
+          </IonList>
+
+          {/* Submit Button */}
+          <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 32 }}>
+            <IonButton
+              type="submit"
+              disabled={isSubmitting}
+              color="primary"
+              style={{ minWidth: 120 }}
+            >
+              {isSubmitting ? (
+                <>
+                  <IonSpinner name="crescent" style={{ marginRight: 8 }} />
+                  Creating...
+                </>
+              ) : (
+                'Create Event'
+              )}
+            </IonButton>
+          </div>
+        </form>
+      </IonCardContent>
+    </IonCard>
   );
 };
 

@@ -8,15 +8,16 @@ import {
 import { useParams } from 'react-router-dom';
 import { gun } from '@services/gunService';
 import { useUserContext } from './UserContext';
-import { Event } from '@types/event';
+import { Event } from '../types/event.ts';
 
 interface EventContextType {
   event: Event | null;
   accessAllowed: boolean;
   isCreator: boolean;
   isInvited: boolean;
+  isPublicEvent: boolean;
   loading: boolean;
-  invitations: Record<string, string | null>;
+  invitations: Record<string, boolean | null>;
 }
 
 export const EventProvider = ({ children }: { children: ReactNode }) => {
@@ -28,7 +29,9 @@ export const EventProvider = ({ children }: { children: ReactNode }) => {
   const [isInvited, setIsInvited] = useState<boolean>(false);
   const [isPublicEvent, setIsPublicEvent] = useState<boolean>(false);
   const [accessAllowed, setAccessAllowed] = useState<boolean>(false);
-  const [invitations, setInvitations] = useState<EventContextType['invitations']>({});
+  const [invitations, setInvitations] = useState<
+    EventContextType['invitations']
+  >({});
 
   const reset = () => {
     setEvent(null);
@@ -43,10 +46,10 @@ export const EventProvider = ({ children }: { children: ReactNode }) => {
 
     let isSubscribed = true;
     const eventRef = gun.get('events').get(id);
-    
+
     const listener = eventRef.on((data: unknown) => {
       if (!isSubscribed) return;
-      
+
       try {
         if (!data || typeof data !== 'object' || !('title' in data)) {
           reset();
@@ -65,7 +68,9 @@ export const EventProvider = ({ children }: { children: ReactNode }) => {
         });
 
         setIsCreator(loadedEvent.createdBy === userPub);
-        setIsInvited(loadedEvent.invited?.[userPub] || loadedEvent.createdBy === userPub);
+        setIsInvited(
+          loadedEvent.invited?.[userPub] || loadedEvent.createdBy === userPub
+        );
         setInvitations(loadedEvent.invited || {});
         setIsPublicEvent(!loadedEvent.isPrivate);
         setAccessAllowed(

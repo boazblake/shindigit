@@ -1,4 +1,8 @@
 export interface Event {
+  createdOn: string;
+  updatedOn: string;
+  createdBy: string;
+  updatedBy: string;
   id: string;
   title: string;
   description: string;
@@ -8,7 +12,6 @@ export interface Event {
   startDateTime: string;
   endDateTime: string;
   isAllDay: boolean;
-  creator: string;
   rsvps: Record<string, RSVPstatus>;
   items: EventItem[];
   invited?: Record<string, boolean>;
@@ -21,4 +24,4 @@ export interface EventItem {
   claimed: Record<string, number>;
 }
 
-export type RSVPstatus = 'going' | 'not_going' | 'maybe';
+export type RSVPstatus = 'yes' | 'no' | 'maybe';

@@ -1,162 +1,239 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { useUserContext } from "../contexts/UserContext";
-import { Calendar, Users, Gift, LogIn, UserPlus, Key, User } from "lucide-react";
+import { useState } from 'react';
+import { useHistory } from 'react-router-dom';
+import { useUserContext } from '../contexts/UserContext';
+import {
+  IonContent,
+  IonPage,
+  IonButton,
+  IonCard,
+  IonCardContent,
+  IonCardHeader,
+  IonCardTitle,
+  IonIcon,
+  IonInput,
+  IonItem,
+  IonLabel,
+  IonText,
+  IonGrid,
+  IonRow,
+  IonCol,
+  IonSegment,
+  IonSegmentButton,
+  IonAlert,
+  IonToast,
+} from '@ionic/react';
+import {
+  calendar,
+  people,
+  gift,
+  logIn,
+  personAdd,
+  lockClosed,
+  person,
+} from 'ionicons/icons';
 
 const LandingPage = () => {
-  const { login, logout, signup, user } = useUserContext();
-  const navigate = useNavigate();
+  const { login, signup } = useUserContext();
+  const history = useHistory();
 
   const [isLogin, setIsLogin] = useState(true);
-  const [alias, setAlias] = useState("");
-  const [password, setPassword] = useState("");
-  const [errorMessage, setErrorMessage] = useState("");
+  const [alias, setAlias] = useState('');
+  const [password, setPassword] = useState('');
+  const [errorMessage, setErrorMessage] = useState('');
+  const [showError, setShowError] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setErrorMessage("");
+    setErrorMessage('');
     try {
       isLogin ? await login(alias, password) : await signup(alias, password);
-      navigate("/home");
+      history.push('/home');
     } catch (err) {
-      console.error("Auth Error", err);
-      setErrorMessage(err instanceof Error ? err.message : "An error occurred");
+      console.error('Auth Error', err);
+      const message = err instanceof Error ? err.message : 'An error occurred';
+      setErrorMessage(message);
+      setShowError(true);
     }
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-purple-50">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-          {/* Left side - Hero section */}
-          <div className="space-y-8 text-center">
-            <div>
-              <h1 className="text-5xl font-bold text-gray-900 mb-4">
-                Plan Events,<br />
-                <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-purple-600">
-                  Share Moments
-                </span>
-              </h1>
-              <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-                Create and manage events with ease. Invite friends, track RSVPs, and coordinate items to bring.
-              </p>
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
-              <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow text-center">
-                <div className="p-3 bg-indigo-100 rounded-lg w-fit mx-auto mb-4">
-                  <Calendar className="w-6 h-6 text-indigo-600" />
-                </div>
-                <h3 className="font-semibold text-gray-900 mb-1">Easy Planning</h3>
-                <p className="text-sm text-gray-600">Create and manage events in minutes</p>
-              </div>
-              <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow text-center">
-                <div className="p-3 bg-green-100 rounded-lg w-fit mx-auto mb-4">
-                  <Users className="w-6 h-6 text-green-600" />
-                </div>
-                <h3 className="font-semibold text-gray-900 mb-1">Track RSVPs</h3>
-                <p className="text-sm text-gray-600">Know who's coming to your event</p>
-              </div>
-              <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow text-center">
-                <div className="p-3 bg-purple-100 rounded-lg w-fit mx-auto mb-4">
-                  <Gift className="w-6 h-6 text-purple-600" />
-                </div>
-                <h3 className="font-semibold text-gray-900 mb-1">Item Sharing</h3>
-                <p className="text-sm text-gray-600">Coordinate what to bring</p>
-              </div>
-            </div>
-          </div>
-
-          {/* Right side - Auth form */}
-          <div className="bg-white p-8 rounded-2xl shadow-lg border border-gray-100">
-            <div className="mb-8">
-              <div className="flex gap-2 mb-6">
-                <button
-                  onClick={() => setIsLogin(true)}
-                  className={`flex-1 px-4 py-3 rounded-lg font-medium transition-all ${
-                    isLogin 
-                      ? "bg-indigo-600 text-white shadow-sm" 
-                      : "bg-gray-100 text-gray-600 hover:bg-gray-200"
-                  }`}
-                >
-                  <LogIn className="w-5 h-5 inline-block mr-2" />
-                  Login
-                </button>
-                <button
-                  onClick={() => setIsLogin(false)}
-                  className={`flex-1 px-4 py-3 rounded-lg font-medium transition-all ${
-                    !isLogin 
-                      ? "bg-indigo-600 text-white shadow-sm" 
-                      : "bg-gray-100 text-gray-600 hover:bg-gray-200"
-                  }`}
-                >
-                  <UserPlus className="w-5 h-5 inline-block mr-2" />
-                  Register
-                </button>
-              </div>
-            </div>
-
-            <form onSubmit={handleSubmit} className="space-y-6">
-              <div>
-                <label htmlFor="alias" className="block text-sm font-medium text-gray-700 mb-1 text-center">
-                  Alias
-                </label>
-                <div className="relative">
-                  <User className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-                  <input
-                    id="alias"
-                    type="text"
-                    placeholder="Enter your alias"
-                    value={alias}
-                    onChange={(e) => setAlias(e.target.value)}
-                    required
-                    className="w-full pl-10 pr-4 py-3 rounded-lg border border-gray-200 focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all text-center"
-                  />
-                </div>
-              </div>
-              <div>
-                <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1 text-center">
-                  Password
-                </label>
-                <div className="relative">
-                  <Key className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-                  <input
-                    id="password"
-                    type="password"
-                    placeholder="Enter your password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    required
-                    className="w-full pl-10 pr-4 py-3 rounded-lg border border-gray-200 focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all text-center"
-                  />
-                </div>
-              </div>
-              {errorMessage && (
-                <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-lg text-sm text-center">
-                  {errorMessage}
-                </div>
-              )}
-              <button
-                type="submit"
-                className="w-full px-4 py-3 bg-indigo-600 text-white rounded-lg font-medium hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors shadow-sm"
-              >
-                {isLogin ? (
-                  <>
-                    <LogIn className="w-5 h-5 inline-block mr-2" />
-                    Login
-                  </>
-                ) : (
-                  <>
-                    <UserPlus className="w-5 h-5 inline-block mr-2" />
-                    Create Account
-                  </>
-                )}
-              </button>
-            </form>
-          </div>
+    <IonPage>
+      <IonContent fullscreen className="ion-padding">
+        {/* Hero Section */}
+        <div style={{ textAlign: 'center', paddingTop: '40px', paddingBottom: '40px' }}>
+          <IonText>
+            <h1 style={{ fontSize: '2.5rem', fontWeight: 'bold', marginBottom: '16px' }}>
+              Plan Events,
+              <br />
+              <span style={{ 
+                background: 'linear-gradient(45deg, var(--ion-color-primary), var(--ion-color-secondary))',
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent',
+                backgroundClip: 'text'
+              }}>
+                Share Moments
+              </span>
+            </h1>
+          </IonText>
+          <IonText color="medium">
+            <p style={{ fontSize: '1.1rem', marginBottom: '32px', maxWidth: '600px', margin: '0 auto 32px' }}>
+              Create and manage events with ease. Invite friends, track RSVPs,
+              and coordinate items to bring.
+            </p>
+          </IonText>
         </div>
-      </div>
-    </div>
+
+        {/* Features Grid */}
+        <IonGrid style={{ marginBottom: '32px' }}>
+          <IonRow>
+            <IonCol size="12" sizeMd="4">
+              <IonCard>
+                <IonCardContent style={{ textAlign: 'center', padding: '24px' }}>
+                  <div style={{ 
+                    display: 'inline-flex', 
+                    padding: '12px', 
+                    backgroundColor: 'var(--ion-color-primary-tint)', 
+                    borderRadius: '12px',
+                    marginBottom: '16px'
+                  }}>
+                    <IonIcon icon={calendar} size="large" color="primary" />
+                  </div>
+                  <IonText>
+                    <h3 style={{ margin: '0 0 8px 0' }}>Easy Planning</h3>
+                  </IonText>
+                  <IonText color="medium">
+                    <p style={{ margin: 0, fontSize: '0.9rem' }}>
+                      Create and manage events in minutes
+                    </p>
+                  </IonText>
+                </IonCardContent>
+              </IonCard>
+            </IonCol>
+            <IonCol size="12" sizeMd="4">
+              <IonCard>
+                <IonCardContent style={{ textAlign: 'center', padding: '24px' }}>
+                  <div style={{ 
+                    display: 'inline-flex', 
+                    padding: '12px', 
+                    backgroundColor: 'var(--ion-color-success-tint)', 
+                    borderRadius: '12px',
+                    marginBottom: '16px'
+                  }}>
+                    <IonIcon icon={people} size="large" color="success" />
+                  </div>
+                  <IonText>
+                    <h3 style={{ margin: '0 0 8px 0' }}>Track RSVPs</h3>
+                  </IonText>
+                  <IonText color="medium">
+                    <p style={{ margin: 0, fontSize: '0.9rem' }}>
+                      Know who's coming to your event
+                    </p>
+                  </IonText>
+                </IonCardContent>
+              </IonCard>
+            </IonCol>
+            <IonCol size="12" sizeMd="4">
+              <IonCard>
+                <IonCardContent style={{ textAlign: 'center', padding: '24px' }}>
+                  <div style={{ 
+                    display: 'inline-flex', 
+                    padding: '12px', 
+                    backgroundColor: 'var(--ion-color-tertiary-tint)', 
+                    borderRadius: '12px',
+                    marginBottom: '16px'
+                  }}>
+                    <IonIcon icon={gift} size="large" color="tertiary" />
+                  </div>
+                  <IonText>
+                    <h3 style={{ margin: '0 0 8px 0' }}>Item Sharing</h3>
+                  </IonText>
+                  <IonText color="medium">
+                    <p style={{ margin: 0, fontSize: '0.9rem' }}>
+                      Coordinate what to bring
+                    </p>
+                  </IonText>
+                </IonCardContent>
+              </IonCard>
+            </IonCol>
+          </IonRow>
+        </IonGrid>
+
+        {/* Auth Form */}
+        <IonCard style={{ maxWidth: '500px', margin: '0 auto' }}>
+          <IonCardHeader>
+            <IonSegment 
+              value={isLogin ? 'login' : 'signup'} 
+              onIonChange={(e) => setIsLogin(e.detail.value === 'login')}
+            >
+              <IonSegmentButton value="login">
+                <IonIcon icon={logIn} />
+                <IonLabel>Login</IonLabel>
+              </IonSegmentButton>
+              <IonSegmentButton value="signup">
+                <IonIcon icon={personAdd} />
+                <IonLabel>Register</IonLabel>
+              </IonSegmentButton>
+            </IonSegment>
+          </IonCardHeader>
+          
+          <IonCardContent>
+            <form onSubmit={handleSubmit}>
+              <IonItem>
+                <IonIcon icon={person} slot="start" />
+                <IonInput
+                  type="text"
+                  placeholder="Enter your alias"
+                  value={alias}
+                  onIonInput={(e: any) => setAlias(e.detail.value)}
+                  required
+                  clearInput
+                />
+              </IonItem>
+              
+              <IonItem style={{ marginTop: '16px' }}>
+                <IonIcon icon={lockClosed} slot="start" />
+                <IonInput
+                  type="password"
+                  placeholder="Enter your password"
+                  value={password}
+                  onIonInput={(e: any) => setPassword(e.detail.value)}
+                  required
+                  clearInput
+                />
+              </IonItem>
+              
+              <IonButton
+                expand="block"
+                type="submit"
+                style={{ marginTop: '24px' }}
+              >
+                <IonIcon 
+                  icon={isLogin ? logIn : personAdd} 
+                  slot="start" 
+                />
+                {isLogin ? 'Login' : 'Create Account'}
+              </IonButton>
+            </form>
+          </IonCardContent>
+        </IonCard>
+
+        {/* Error Toast */}
+        <IonToast
+          isOpen={showError}
+          onDidDismiss={() => setShowError(false)}
+          message={errorMessage}
+          duration={3000}
+          color="danger"
+          position="top"
+          buttons={[
+            {
+              text: 'Dismiss',
+              role: 'cancel'
+            }
+          ]}
+        />
+      </IonContent>
+    </IonPage>
   );
 };
 
