@@ -8,7 +8,6 @@ import {
   IonCard,
   IonCardContent,
   IonCardHeader,
-  IonCardTitle,
   IonIcon,
   IonInput,
   IonItem,
@@ -19,7 +18,6 @@ import {
   IonCol,
   IonSegment,
   IonSegmentButton,
-  IonAlert,
   IonToast,
 } from '@ionic/react';
 import {

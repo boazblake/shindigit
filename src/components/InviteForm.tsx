@@ -41,7 +41,9 @@ const InviteForm = ({ eventId }: InviteFormProps) => {
         <IonLabel position="stacked">User Public Key</IonLabel>
         <IonInput
           value={pubKey}
-          onIonInput={e => setPubKey((e.target as HTMLInputElement).value)}
+          onIonInput={e =>
+            setPubKey(String(e.detail.value ?? ''))
+          }
           onKeyDown={handleKeyDown}
           placeholder="Insert the user pub key"
           clearInput

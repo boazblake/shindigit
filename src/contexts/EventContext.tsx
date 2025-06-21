@@ -20,8 +20,16 @@ interface EventContextType {
   invitations: Record<string, boolean | null>;
 }
 
-export const EventProvider = ({ children }: { children: ReactNode }) => {
-  const { id } = useParams<{ id: string }>();
+interface EventProviderProps {
+  children: ReactNode;
+  eventId?: string;
+}
+
+const EventContext = createContext<EventContextType | null>(null);
+
+export const EventProvider: React.FC<EventProviderProps> = ({ children, eventId }) => {
+  const params = useParams<{ id: string }>();
+  const id = eventId ?? params.id;
   const { user } = useUserContext();
   const [event, setEvent] = useState<Event | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
@@ -109,10 +117,8 @@ export const EventProvider = ({ children }: { children: ReactNode }) => {
   );
 };
 
-const EventContext = createContext<EventContextType | null>(null);
 export const useEventContext = () => {
   const context = useContext(EventContext);
-  console.log('event', context);
   if (!context) {
     throw new Error('Use Event context must be inside event provider!');
   }
